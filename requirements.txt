@@ -1,0 +1,6 @@
+openai
+sentence-transformers
+transformers
+markitdown[pdf, docx, pptx]
+chromadb
+chonkie
