@@ -12,7 +12,7 @@ Understand the tradeoffs between RAG architectures by building and running retri
 |---|---|---|
 | Standard RAG | Done | Basic chunking + embeddings + vector retrieval |
 | Contextual RAG | Done | LLM-generated context prepended to each chunk |
-| Hybrid RAG | Planned | BM25 + reranker |
+| Hybrid RAG | Done | BM25 + reranker |
 
 ## Stack
 
