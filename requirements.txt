@@ -4,3 +4,5 @@ transformers
 markitdown[pdf, docx, pptx]
 chromadb
 chonkie
+pickle
+rank_bm25
