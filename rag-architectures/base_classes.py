@@ -11,7 +11,7 @@ openai_client = OpenAI(api_key=os.getenv('API_KEY'), base_url="https://api.deeps
 sentence_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 class LLMInterface:
-    def __init__(self, retriever):
+    def __init__(self, retriever=None):
         self.retriever = retriever
 
     def simple_query(self, query):
@@ -27,7 +27,7 @@ class LLMInterface:
             return "Sorry, I couldn't process your request at the moment."
 
     def user_query(self, query):
-        context = self.retriever.get_context(query)
+        context = self.retriever.get_context(query) if self.retriever else None
         prompt = f"Use the following context to answer the question:\n\n{context}\n\nQuestion: {query}\nAnswer:"
 
         try:
@@ -49,10 +49,15 @@ class Retriever:
     def __init__(self, vector_store):
         self.collection = vector_store.collection
     
-    def get_context(self, query, k=20):
+    def get_context(self, query, k=3):
         query_embedding = sentence_model.encode([query]).tolist()
         results = self.collection.query(query_embeddings=query_embedding, n_results=k)
         return results['documents'][0]
+
+    def get_ids(self, query, k=3):
+        query_embedding = sentence_model.encode([query]).tolist()
+        results = self.collection.query(query_embeddings=query_embedding, n_results=k)
+        return results['ids'][0]
     
 
 class Reranker:
