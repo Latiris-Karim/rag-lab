@@ -1,6 +1,3 @@
 .env
 learning.md
-todo.md
-/db
-/rag_files
-bm25_model.pkl
+
