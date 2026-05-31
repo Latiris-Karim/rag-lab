@@ -1,7 +1,7 @@
 import os
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # supress TensorFlow warning about oneDNN optimizations 
 from sentence_transformers import SentenceTransformer
-from base_classes import Chunker, Retriever, LLMInterface
+from base_classes import Chunker
 from markitdown import MarkItDown
 import chromadb
 from chonkie import RecursiveChunker
@@ -34,9 +34,12 @@ class StandardVectorStore:
 
     def add_chunks(self, chunks):
         #chunk 0 = file name, chunk 1 = text
+
+        offset = self.collection.count()
         for i, chunk in enumerate(chunks):
+            id = offset + i
             embeddings = sentence_model.encode([chunk[1]]).tolist()
-            self.collection.add(ids=str(i), embeddings=embeddings, documents=[chunk[1]], metadatas=[{"file": chunk[0]}])
+            self.collection.add(ids=str(id), embeddings=embeddings, documents=[chunk[1]], metadatas=[{"file": chunk[0]}])
 
     
 if __name__ == "__main__":
@@ -46,9 +49,4 @@ if __name__ == "__main__":
         chunker = StandardChunker(os.getenv('rag_files'))
         chunks = chunker.chunk()
         vector_store.add_chunks(chunks)
-
-    #get context, query LLM, receive answer
-    user = LLMInterface(Retriever(vector_store))
-    answer = user.user_query("What is the main topic of the document?")
-    print(answer)
 
