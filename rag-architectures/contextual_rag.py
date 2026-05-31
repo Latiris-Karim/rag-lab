@@ -26,14 +26,14 @@ class ContextualChunker(Chunker):
             else:
                 text = md.convert(full_path).markdown
             res = rec_chunker.chunk(text)
-            contexualsummary = self.summary_for_chunk(text, res) 
+            contexualsummary = self._summary_for_chunk(text, res) 
 
             chunks.extend((file, contexualsummary[chunk], res[chunk].text) for chunk in range(len(res)))
 
         print(len(chunks))
         return chunks
     
-    def summary_for_chunk(self, document, chunks):
+    def _summary_for_chunk(self, document, chunks):
         summaries = []
         prompt = f"Summarize the main purpose of the chunk based on the document content. The summary should be a short sentence that explains the role this chunk plays in the overall document. Document: {document}\n\n"
         for chunk in chunks:
@@ -49,9 +49,12 @@ class ContextualVectorStore:
 
     def add_chunks(self, chunks):
         #chunk[0] = file name | chunk[1] = contextual summary | chunk[2] = chunk
+        
+        offset = self.collection.count()
         for i, chunk in enumerate(chunks):
+            id = offset + i
             embeddings = sentence_model.encode([chunk[0] + chunk[1] + chunk[2]]).tolist()
-            self.collection.add(ids=str(i), embeddings=embeddings, documents=[chunk[1] + chunk[2]], metadatas=[{"file": chunk[0]}])
+            self.collection.add(ids=str(id), embeddings=embeddings, documents=[chunk[1] + chunk[2]], metadatas=[{"file": chunk[0]}])
 
 if __name__ == "__main__":
     #chunking + embedding into vector store
@@ -62,6 +65,3 @@ if __name__ == "__main__":
         chunks = chunker.chunk()
         vector_store.add_chunks(chunks)
 
-    #get context, query LLM, receive answer
-    answer = user.user_query("What is the main topic of the document?")
-    print(answer)
